@@ -48,20 +48,20 @@ type MongoCollections struct {
 
 type Subscriptions struct {
 	PoolSize                   int    `mapstructure:"poolSize" validate:"required,gte=0"`
-	ProductPrefix              string `mapstructure:"orderPrefix" validate:"required,gte=0"`
+	ProductPrefix              string `mapstructure:"productPrefix" validate:"required,gte=0"`
 	MongoProjectionGroupName   string `mapstructure:"mongoProjectionGroupName" validate:"required,gte=0"`
 	ElasticProjectionGroupName string `mapstructure:"elasticProjectionGroupName" validate:"required,gte=0"`
 }
 
 type ElasticIndexes struct {
-	Products string `mapstructure:"orders" validate:"required"`
+	Products string `mapstructure:"products" validate:"required"`
 }
 
 type Http struct {
 	Port                string   `mapstructure:"port" validate:"required"`
 	Development         bool     `mapstructure:"development"`
 	BasePath            string   `mapstructure:"basePath" validate:"required"`
-	ProductsPath        string   `mapstructure:"ordersPath" validate:"required"`
+	ProductsPath        string   `mapstructure:"productsPath" validate:"required"`
 	DebugErrorsResponse bool     `mapstructure:"debugErrorsResponse"`
 	IgnoreLogUrls       []string `mapstructure:"ignoreLogUrls"`
 }
