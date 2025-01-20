@@ -17,23 +17,26 @@ import (
 )
 
 const (
-	ErrBadRequest          = "Bad request"
-	ErrNotFound            = "Not Found"
-	ErrUnauthorized        = "Unauthorized"
-	ErrRequestTimeout      = "Request Timeout"
-	ErrInvalidEmail        = "Invalid email"
-	ErrInvalidPassword     = "Invalid password"
-	ErrInvalidField        = "Invalid field"
-	ErrInternalServerError = "Internal Server Error"
+	ErrBadRequest            = "Bad request"
+	ErrNotFound              = "Not Found"
+	ErrUnauthorized          = "Unauthorized"
+	ErrRequestTimeout        = "Request Timeout"
+	ErrInvalidEmail          = "Invalid email"
+	ErrInvalidPassword       = "Invalid password"
+	ErrInvalidField          = "Invalid field"
+	ErrInternalServerError   = "Internal Server Error"
+	ErrInvalidParameterError = "Invalid parameter"
+	ErrResourceNotFound      = "Resource not found"
 )
 
 var (
-	BadRequest          = errors.New("Bad request")
-	WrongCredentials    = errors.New("Wrong Credentials")
-	NotFound            = errors.New("Not Found")
-	Unauthorized        = errors.New("Unauthorized")
-	Forbidden           = errors.New("Forbidden")
-	InternalServerError = errors.New("Internal Server Error")
+	BadRequest            = errors.New("Bad request")
+	WrongCredentials      = errors.New("Wrong Credentials")
+	NotFound              = errors.New("Not Found")
+	Unauthorized          = errors.New("Unauthorized")
+	Forbidden             = errors.New("Forbidden")
+	InternalServerError   = errors.New("Internal Server Error")
+	InvalidParameterError = errors.New("Invalid parameter")
 )
 
 // RestErr Rest error interface
@@ -172,9 +175,23 @@ func NewInternalServerError(ctx echo.Context, causes interface{}, debug bool) er
 	return ctx.JSON(http.StatusInternalServerError, restError)
 }
 
+func NewInvalidParameterError(ctx echo.Context, causes interface{}, debug bool) error {
+	restError := RestError{
+		ErrStatus: http.StatusBadRequest,
+		ErrError:  InvalidParameterError.Error(),
+		Timestamp: time.Now().UTC(),
+	}
+	if debug {
+		restError.ErrMessage = causes
+	}
+	return ctx.JSON(http.StatusBadRequest, restError)
+}
+
 // ParseErrors Parser of error string messages returns RestError
 func ParseErrors(err error, debug bool) RestErr {
 	switch {
+	case errors.Is(err, InvalidParameterError):
+		return NewRestError(http.StatusBadRequest, ErrInvalidParameterError, "one more parameters are either missing or invalid", debug)
 	case errors.Is(err, sql.ErrNoRows):
 		return NewRestError(http.StatusNotFound, ErrNotFound, err.Error(), debug)
 	case errors.Is(err, context.DeadlineExceeded):
@@ -205,9 +222,9 @@ func ParseErrors(err error, debug bool) RestErr {
 	case strings.Contains(strings.ToLower(err.Error()), constants.Bcrypt):
 		return NewRestError(http.StatusBadRequest, ErrBadRequest, err.Error(), debug)
 	case strings.Contains(strings.ToLower(err.Error()), "no documents in result"):
-		return NewRestError(http.StatusNotFound, ErrNotFound, err.Error(), debug)
+		return NewRestError(http.StatusNotFound, ErrNotFound, ErrResourceNotFound, debug)
 	case strings.Contains(strings.ToLower(err.Error()), "not found"):
-		return NewRestError(http.StatusNotFound, ErrNotFound, "resource not found", debug)
+		return NewRestError(http.StatusNotFound, ErrNotFound, ErrResourceNotFound, debug)
 	default:
 		if restErr, ok := err.(*RestError); ok {
 			return restErr
