@@ -22,17 +22,17 @@ func NewEventStore(log logger.Logger, db *esdb.Client) *eventStore {
 	return &eventStore{log: log, db: db}
 }
 
-func (e *eventStore) SaveEvents(ctx context.Context, streamID string, events []es.Event) error {
+func (e *eventStore) SaveEvents(ctx context.Context, streamId string, events []es.Event) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "eventStore.SaveEvents")
 	defer span.Finish()
-	span.LogFields(log.String("AggregateID", streamID))
+	span.LogFields(log.String("AggregateId", streamId))
 
 	eventsData := make([]esdb.EventData, 0, len(events))
 	for _, event := range events {
 		eventsData = append(eventsData, event.ToEventData())
 	}
 
-	stream, err := e.db.AppendToStream(ctx, streamID, esdb.AppendToStreamOptions{}, eventsData...)
+	stream, err := e.db.AppendToStream(ctx, streamId, esdb.AppendToStreamOptions{}, eventsData...)
 	if err != nil {
 		tracing.TraceErr(span, err)
 		return err
@@ -42,12 +42,12 @@ func (e *eventStore) SaveEvents(ctx context.Context, streamID string, events []e
 	return nil
 }
 
-func (e *eventStore) LoadEvents(ctx context.Context, streamID string) ([]es.Event, error) {
+func (e *eventStore) LoadEvents(ctx context.Context, streamId string) ([]es.Event, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "eventStore.LoadEvents")
 	defer span.Finish()
-	span.LogFields(log.String("AggregateID", streamID))
+	span.LogFields(log.String("AggregateId", streamId))
 
-	stream, err := e.db.ReadStream(ctx, streamID, esdb.ReadStreamOptions{
+	stream, err := e.db.ReadStream(ctx, streamId, esdb.ReadStreamOptions{
 		Direction: esdb.Forwards,
 		From:      esdb.Revision(1),
 	}, 100)

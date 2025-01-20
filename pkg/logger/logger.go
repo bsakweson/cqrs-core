@@ -39,9 +39,9 @@ type Logger interface {
 	HttpMiddlewareAccessLogger(method string, uri string, status int, size int64, time time.Duration)
 	GrpcMiddlewareAccessLogger(method string, time time.Duration, metaData map[string][]string, err error)
 	GrpcClientInterceptorLogger(method string, req interface{}, reply interface{}, time time.Duration, metaData map[string][]string, err error)
-	KafkaProcessMessage(topic string, partition int, message string, workerID int, offset int64, time time.Time)
+	KafkaProcessMessage(topic string, partition int, message string, workerId int, offset int64, time time.Time)
 	KafkaLogCommittedMessage(topic string, partition int, offset int64)
-	ProjectionEvent(projectionName string, groupName string, event *esdb.ResolvedEvent, workerID int)
+	ProjectionEvent(projectionName string, groupName string, event *esdb.ResolvedEvent, workerId int)
 }
 
 // Application logger
@@ -267,13 +267,13 @@ func (l *appLogger) GrpcClientInterceptorLogger(method string, req, reply interf
 	)
 }
 
-func (l *appLogger) KafkaProcessMessage(topic string, partition int, message string, workerID int, offset int64, time time.Time) {
+func (l *appLogger) KafkaProcessMessage(topic string, partition int, message string, workerId int, offset int64, time time.Time) {
 	l.logger.Debug(
 		"Processing Kafka message",
 		zap.String(constants.Topic, topic),
 		zap.Int(constants.Partition, partition),
 		zap.String(constants.Message, message),
-		zap.Int(constants.WorkerID, workerID),
+		zap.Int(constants.WorkerId, workerId),
 		zap.Int64(constants.Offset, offset),
 		zap.Time(constants.Time, time),
 	)
@@ -288,16 +288,16 @@ func (l *appLogger) KafkaLogCommittedMessage(topic string, partition int, offset
 	)
 }
 
-func (l *appLogger) ProjectionEvent(projectionName string, groupName string, event *esdb.ResolvedEvent, workerID int) {
+func (l *appLogger) ProjectionEvent(projectionName string, groupName string, event *esdb.ResolvedEvent, workerId int) {
 	l.logger.Debug(
 		projectionName,
 		zap.String(constants.GroupName, groupName),
-		zap.String(constants.StreamID, event.OriginalEvent().StreamID),
-		zap.String(constants.EventID, event.OriginalEvent().EventID.String()),
+		zap.String(constants.StreamId, event.OriginalEvent().StreamID),
+		zap.String(constants.EventId, event.OriginalEvent().EventID.String()),
 		zap.String(constants.EventType, event.OriginalEvent().EventType),
 		zap.Uint64(constants.EventNumber, event.OriginalEvent().EventNumber),
 		zap.Time(constants.CreatedDate, event.OriginalEvent().CreatedDate),
 		zap.String(constants.UserMetadata, string(event.OriginalEvent().UserMetadata)),
-		zap.Int(constants.WorkerID, workerID),
+		zap.Int(constants.WorkerId, workerId),
 	)
 }

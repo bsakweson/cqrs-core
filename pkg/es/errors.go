@@ -8,6 +8,6 @@ var (
 	ErrInvalidEventType    = errors.New("invalid event type")
 	ErrInvalidCommandType  = errors.New("invalid command type")
 	ErrInvalidAggregate    = errors.New("invalid aggregate")
-	ErrInvalidAggregateID  = errors.New("invalid aggregate id")
+	ErrInvalidAggregateId  = errors.New("invalid aggregate id")
 	ErrInvalidEventVersion = errors.New("invalid event version")
 )

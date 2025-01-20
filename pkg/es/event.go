@@ -16,22 +16,22 @@ type EventType string
 // uses NewEvent to create a new event. The events loaded from the db is
 // represented by each DBs internal event type, implementing Event.
 type Event struct {
-	EventID       string
+	EventId       string
 	EventType     string
 	Data          []byte
 	Timestamp     time.Time
 	AggregateType AggregateType
-	AggregateID   string
+	AggregateId   string
 	Version       int64
 	Metadata      []byte
 }
 
-// NewBaseEvent new base Event constructor with configured EventID, Aggregate properties and Timestamp.
+// NewBaseEvent new base Event constructor with configured EventId, Aggregate properties and Timestamp.
 func NewBaseEvent(aggregate Aggregate, eventType string) Event {
 	return Event{
-		EventID:       uuid.NewV4().String(),
+		EventId:       uuid.NewV4().String(),
 		AggregateType: aggregate.GetType(),
-		AggregateID:   aggregate.GetID(),
+		AggregateId:   aggregate.GetId(),
 		Version:       aggregate.GetVersion(),
 		EventType:     eventType,
 		Timestamp:     time.Now().UTC(),
@@ -40,11 +40,11 @@ func NewBaseEvent(aggregate Aggregate, eventType string) Event {
 
 func NewEventFromRecorded(event *esdb.RecordedEvent) Event {
 	return Event{
-		EventID:     event.EventID.String(),
+		EventId:     event.EventID.String(),
 		EventType:   event.EventType,
 		Data:        event.Data,
 		Timestamp:   event.CreatedDate,
-		AggregateID: event.StreamID,
+		AggregateId: event.StreamID,
 		Version:     int64(event.EventNumber),
 		Metadata:    event.UserMetadata,
 	}
@@ -52,7 +52,7 @@ func NewEventFromRecorded(event *esdb.RecordedEvent) Event {
 
 func NewEventFromEventData(event esdb.EventData) Event {
 	return Event{
-		EventID:   event.EventID.String(),
+		EventId:   event.EventID.String(),
 		EventType: event.EventType,
 		Data:      event.Data,
 		Metadata:  event.Metadata,
@@ -61,11 +61,11 @@ func NewEventFromEventData(event esdb.EventData) Event {
 
 func EventFromEventData(recordedEvent esdb.RecordedEvent) (Event, error) {
 	return Event{
-		EventID:     recordedEvent.EventID.String(),
+		EventId:     recordedEvent.EventID.String(),
 		EventType:   recordedEvent.EventType,
 		Data:        recordedEvent.Data,
 		Timestamp:   recordedEvent.CreatedDate,
-		AggregateID: recordedEvent.StreamID,
+		AggregateId: recordedEvent.StreamID,
 		Version:     int64(recordedEvent.Position.Commit),
 		Metadata:    nil,
 	}, nil
@@ -80,9 +80,9 @@ func (e *Event) ToEventData() esdb.EventData {
 	}
 }
 
-// GetEventID get EventID of the Event.
-func (e *Event) GetEventID() string {
-	return e.EventID
+// GetEventId get EventId of the Event.
+func (e *Event) GetEventId() string {
+	return e.EventId
 }
 
 // GetTimeStamp get timestamp of the Event.
@@ -132,9 +132,9 @@ func (e *Event) SetAggregateType(aggregateType AggregateType) {
 	e.AggregateType = aggregateType
 }
 
-// GetAggregateID is the ID of the Aggregate that the Event belongs to
-func (e *Event) GetAggregateID() string {
-	return e.AggregateID
+// GetAggregateId is the Id of the Aggregate that the Event belongs to
+func (e *Event) GetAggregateId() string {
+	return e.AggregateId
 }
 
 // GetVersion is the version of the Aggregate after the Event has been applied.
@@ -147,7 +147,7 @@ func (e *Event) SetVersion(aggregateVersion int64) {
 	e.Version = aggregateVersion
 }
 
-// GetMetadata is app-specific metadata such as request ID, originating user etc.
+// GetMetadata is app-specific metadata such as request Id, originating user etc.
 func (e *Event) GetMetadata() []byte {
 	return e.Metadata
 }
@@ -175,8 +175,8 @@ func (e *Event) GetString() string {
 }
 
 func (e *Event) String() string {
-	return fmt.Sprintf("(Event): AggregateID: {%s}, Version: {%d}, EventType: {%s}, AggregateType: {%s}, Metadata: {%s}, TimeStamp: {%s}",
-		e.AggregateID,
+	return fmt.Sprintf("(Event): AggregateId: {%s}, Version: {%d}, EventType: {%s}, AggregateType: {%s}, Metadata: {%s}, TimeStamp: {%s}",
+		e.AggregateId,
 		e.Version,
 		e.EventType,
 		e.AggregateType,

@@ -30,9 +30,9 @@ func NewAggregateStore(log logger.Logger, db *esdb.Client) *aggregateStore {
 func (a *aggregateStore) Load(ctx context.Context, aggregate es.Aggregate) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "aggregateStore.Load")
 	defer span.Finish()
-	span.LogFields(log.String("AggregateID", aggregate.GetID()))
+	span.LogFields(log.String("AggregateId", aggregate.GetId()))
 
-	stream, err := a.db.ReadStream(ctx, aggregate.GetID(), esdb.ReadStreamOptions{}, count)
+	stream, err := a.db.ReadStream(ctx, aggregate.GetId(), esdb.ReadStreamOptions{}, count)
 	if err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "db.ReadStream")
@@ -88,7 +88,7 @@ func (a *aggregateStore) Save(ctx context.Context, aggregate es.Aggregate) error
 
 		appendStream, err := a.db.AppendToStream(
 			ctx,
-			aggregate.GetID(),
+			aggregate.GetId(),
 			esdb.AppendToStreamOptions{ExpectedRevision: expectedRevision},
 			eventsData...,
 		)
@@ -102,7 +102,7 @@ func (a *aggregateStore) Save(ctx context.Context, aggregate es.Aggregate) error
 	}
 
 	readOps := esdb.ReadStreamOptions{Direction: esdb.Backwards, From: esdb.End{}}
-	stream, err := a.db.ReadStream(context.Background(), aggregate.GetID(), readOps, 1)
+	stream, err := a.db.ReadStream(context.Background(), aggregate.GetId(), readOps, 1)
 	if err != nil {
 		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "db.ReadStream")
@@ -120,7 +120,7 @@ func (a *aggregateStore) Save(ctx context.Context, aggregate es.Aggregate) error
 
 	appendStream, err := a.db.AppendToStream(
 		ctx,
-		aggregate.GetID(),
+		aggregate.GetId(),
 		esdb.AppendToStreamOptions{ExpectedRevision: expectedRevision},
 		eventsData...,
 	)
@@ -134,14 +134,14 @@ func (a *aggregateStore) Save(ctx context.Context, aggregate es.Aggregate) error
 	return nil
 }
 
-func (a *aggregateStore) Exists(ctx context.Context, streamID string) error {
+func (a *aggregateStore) Exists(ctx context.Context, streamId string) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "aggregateStore.Exists")
 	defer span.Finish()
-	span.LogFields(log.String("AggregateID", streamID))
+	span.LogFields(log.String("AggregateId", streamId))
 
 	readStreamOptions := esdb.ReadStreamOptions{Direction: esdb.Backwards, From: esdb.Revision(1)}
 
-	stream, err := a.db.ReadStream(ctx, streamID, readStreamOptions, 1)
+	stream, err := a.db.ReadStream(ctx, streamId, readStreamOptions, 1)
 	if err != nil {
 		return errors.Wrap(err, "db.ReadStream")
 	}

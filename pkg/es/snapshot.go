@@ -4,7 +4,7 @@ import "encoding/json"
 
 // Snapshot Event Sourcing Snapshotting is an optimisation that reduces time spent on reading event from an event store.
 type Snapshot struct {
-	ID      string        `json:"id"`
+	Id      string        `json:"id"`
 	Type    AggregateType `json:"type"`
 	State   []byte        `json:"state"`
 	Version uint64        `json:"version"`
@@ -19,7 +19,7 @@ func NewSnapshotFromAggregate(aggregate Aggregate) (*Snapshot, error) {
 	}
 
 	return &Snapshot{
-		ID:      aggregate.GetID(),
+		Id:      aggregate.GetId(),
 		Type:    aggregate.GetType(),
 		State:   aggregateBytes,
 		Version: uint64(aggregate.GetVersion()),

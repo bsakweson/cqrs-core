@@ -42,7 +42,7 @@ type HandleCommand interface {
 //			if err := json.Unmarshal(evt.GetData(), &eventData); err != nil {
 //				return err
 //			}
-//			a.Order.ItemsIDs = eventData.ItemsIDs
+//			a.Order.ItemsIds = eventData.ItemsIds
 //			a.Order.Created = true
 //			return nil
 //
@@ -74,8 +74,8 @@ type Aggregate interface {
 // AggregateRoot contains all methods of AggregateBase
 type AggregateRoot interface {
 	GetUncommittedEvents() []Event
-	GetID() string
-	SetID(id string) *AggregateBase
+	GetId() string
+	SetId(id string) *AggregateBase
 	GetVersion() int64
 	ClearUncommittedEvents()
 	ToSnapshot()
@@ -94,7 +94,7 @@ type AggregateType string
 
 // AggregateBase base aggregate contains all main necessary fields
 type AggregateBase struct {
-	ID                string
+	Id                string
 	Version           int64
 	AppliedEvents     []Event
 	UncommittedEvents []Event
@@ -130,15 +130,15 @@ func NewAggregateBase(when when) *AggregateBase {
 	}
 }
 
-// SetID set AggregateBase ID
-func (a *AggregateBase) SetID(id string) *AggregateBase {
-	a.ID = fmt.Sprintf("%s-%s", a.GetType(), id)
+// SetId set AggregateBase Id
+func (a *AggregateBase) SetId(id string) *AggregateBase {
+	a.Id = fmt.Sprintf("%s-%s", a.GetType(), id)
 	return a
 }
 
-// GetID get AggregateBase ID
-func (a *AggregateBase) GetID() string {
-	return a.ID
+// GetId get AggregateBase Id
+func (a *AggregateBase) GetId() string {
+	return a.Id
 }
 
 // SetType set AggregateBase AggregateType
@@ -180,7 +180,7 @@ func (a *AggregateBase) GetUncommittedEvents() []Event {
 func (a *AggregateBase) Load(events []Event) error {
 
 	for _, evt := range events {
-		if evt.GetAggregateID() != a.GetID() {
+		if evt.GetAggregateId() != a.GetId() {
 			return ErrInvalidAggregate
 		}
 
@@ -199,8 +199,8 @@ func (a *AggregateBase) Load(events []Event) error {
 
 // Apply push event to aggregate uncommitted events using When method
 func (a *AggregateBase) Apply(event Event) error {
-	if event.GetAggregateID() != a.GetID() {
-		return ErrInvalidAggregateID
+	if event.GetAggregateId() != a.GetId() {
+		return ErrInvalidAggregateId
 	}
 
 	event.SetAggregateType(a.GetType())
@@ -217,8 +217,8 @@ func (a *AggregateBase) Apply(event Event) error {
 
 // RaiseEvent push event to aggregate applied events using When method, used for load directly from eventstore
 func (a *AggregateBase) RaiseEvent(event Event) error {
-	if event.GetAggregateID() != a.GetID() {
-		return ErrInvalidAggregateID
+	if event.GetAggregateId() != a.GetId() {
+		return ErrInvalidAggregateId
 	}
 	if a.GetVersion() >= event.GetVersion() {
 		return ErrInvalidEventVersion
@@ -247,8 +247,8 @@ func (a *AggregateBase) ToSnapshot() {
 }
 
 func (a *AggregateBase) String() string {
-	return fmt.Sprintf("ID: {%s}, Version: {%v}, Type: {%v}, AppliedEvents: {%v}, UncommittedEvents: {%v}",
-		a.GetID(),
+	return fmt.Sprintf("Id: {%s}, Version: {%v}, Type: {%v}, AppliedEvents: {%v}, UncommittedEvents: {%v}",
+		a.GetId(),
 		a.GetVersion(),
 		a.GetType(),
 		len(a.GetAppliedEvents()),
