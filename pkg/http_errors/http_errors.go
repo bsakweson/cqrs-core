@@ -241,7 +241,7 @@ func ErrorResponse(err error, debug bool) (int, interface{}) {
 func ErrorCtxResponse(ctx echo.Context, err error, debug bool) error {
 	restErr := ParseErrors(err, debug)
 	if restErr.Status() != http.StatusInternalServerError {
-		return ctx.JSON(restErr.Status(), restErr.ErrBody())
+		return ctx.JSON(restErr.Status(), restErr.ErrBody().Causes())
 	}
 	return ctx.JSON(restErr.Status(), restErr)
 }
