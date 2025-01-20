@@ -238,5 +238,8 @@ func ErrorResponse(err error, debug bool) (int, interface{}) {
 // ErrorCtxResponse Error response object and status code
 func ErrorCtxResponse(ctx echo.Context, err error, debug bool) error {
 	restErr := ParseErrors(err, debug)
+	if restErr.Status() != http.StatusInternalServerError {
+		return ctx.JSON(restErr.Status(), restErr.Causes())
+	}
 	return ctx.JSON(restErr.Status(), restErr)
 }
