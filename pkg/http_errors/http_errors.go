@@ -206,6 +206,8 @@ func ParseErrors(err error, debug bool) RestErr {
 		return NewRestError(http.StatusBadRequest, ErrBadRequest, err.Error(), debug)
 	case strings.Contains(strings.ToLower(err.Error()), "no documents in result"):
 		return NewRestError(http.StatusNotFound, ErrNotFound, err.Error(), debug)
+	case strings.Contains(strings.ToLower(err.Error()), "not found"):
+		return NewRestError(http.StatusNotFound, ErrNotFound, "resource not found", debug)
 	default:
 		if restErr, ok := err.(*RestError); ok {
 			return restErr
@@ -239,7 +241,7 @@ func ErrorResponse(err error, debug bool) (int, interface{}) {
 func ErrorCtxResponse(ctx echo.Context, err error, debug bool) error {
 	restErr := ParseErrors(err, debug)
 	if restErr.Status() != http.StatusInternalServerError {
-		return ctx.JSON(restErr.Status(), restErr.Causes())
+		return ctx.JSON(restErr.Status(), restErr.ErrBody())
 	}
 	return ctx.JSON(restErr.Status(), restErr)
 }
